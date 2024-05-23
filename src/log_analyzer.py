@@ -4,18 +4,26 @@ import openai
 
 def fetch_logs(logs_url):
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}"
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
+        "Accept": "application/vnd.github.v3+json"
     }
     response = requests.get(logs_url, headers=headers)
-    response.raise_for_status()
-    return response.text
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        print(f"Error fetching logs: {e}")
+        return "Error fetching logs.", False
+    return response.text, True
 
 def analyze_logs(logs_url):
-    logs = fetch_logs(logs_url)
-    openai.api_key = os.getenv('OPENAI_API_KEY')
-    response = openai.Completion.create(
-        engine="davinci",
-        prompt=f"Analyze the following logs and determine the cause of failure:\n\n{logs}",
-        max_tokens=150
+    logs, status = fetch_logs(logs_url)
+    messages = [{"role": "user", "content": f"Analyze the following logs and determine the cause of failure:\n\n{logs}"}]
+    openai.api_key = os.getenv("CHATGPT_API_KEY")
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        temperature=0,
     )
-    return response.choices[0].text
+    print(response)
+    return response.choices[0].message["content"]
+

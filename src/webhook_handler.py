@@ -1,8 +1,8 @@
 import os
 import requests
 from flask import request, jsonify
-from src.log_analyzer import analyze_logs
-from src.github_issue_creator import create_github_issue
+from log_analyzer import analyze_logs
+from github_issue_creator import create_github_issue
 
 def webhook():
     data = request.json
