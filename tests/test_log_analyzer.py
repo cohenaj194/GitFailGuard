@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from src.log_analyzer import analyze_logs, fetch_logs
 
+
 class TestLogAnalyzer(unittest.TestCase):
     @patch("src.log_analyzer.requests.get")
     def test_fetch_logs(self, mock_get):

@@ -1,9 +1,10 @@
 import os
 import requests
+import time
 
 
 def create_github_issue(repo_name, workflow_name, logs_url, analysis):
-    issue_title = f"Failed GitHub Action: {workflow_name}"
+    issue_title = f"GitFailGuard: {workflow_name} {int(time.time())}"
     issue_body = (
         f"The GitHub Action `{workflow_name}` failed.\n\n"
         f"Logs: [View Logs]({logs_url})\n\n"
@@ -17,6 +18,8 @@ def create_github_issue(repo_name, workflow_name, logs_url, analysis):
     data = {"title": issue_title, "body": issue_body}
     response = requests.post(github_api_url, headers=headers, json=data)
     if response.status_code == 201:
-        print("Issue created successfully.")
+        issue_url = response.json().get("html_url")
+        print(f"Issue created successfully: {issue_url}")
+        return issue_url
     else:
         print(f"Failed to create issue: {response.content}")

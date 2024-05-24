@@ -16,6 +16,14 @@ def webhook():
         logs_url = data["workflow_run"]["logs_url"]
         analysis = analyze_logs(logs_url)
         if not analysis:
-            return jsonify({"status": "error"}), 500
-        create_github_issue(repo_name, workflow_name, logs_url, analysis)
-    return jsonify({"status": "received"}), 200
+            return jsonify({"status": "error", "data": data, "issue_url": None}), 500
+        else:
+            issue_url = create_github_issue(
+                repo_name, workflow_name, logs_url, analysis
+            )
+            return (
+                jsonify({"status": "received", "data": data, "issue_url": issue_url}),
+                200,
+            )
+    else:
+        return jsonify({"status": "error", "data": data, "issue_url": None}), 400

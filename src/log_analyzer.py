@@ -14,22 +14,28 @@ def fetch_logs(repo_owner, repo_name, run_id, job_id):
     if response.status_code == 200:
         return response.text
     else:
-        print(f"Error: Unable to fetch logs, status code: {response.status_code}")
+        print(
+            f"Error: Unable to fetch logs from {url}, status code: {response.status_code}"
+        )
         return False
 
 
 def extract_info_from_url(url):
-    # Split the URL by '/'
-    parts = url.split("/")
-    # Extract repository owner, repository name, run ID, and job ID from the URL
-    repo_owner = parts[3]
-    repo_name = parts[4]
-    run_id = parts[7]
-    job_id = parts[9]
-    return repo_owner, repo_name, run_id, job_id
+    try:
+        # Split the URL by '/'
+        parts = url.split("/")
+        # Extract repository owner, repository name, run ID, and job ID from the URL
+        repo_owner = parts[3]
+        repo_name = parts[4]
+        run_id = parts[7]
+        job_id = parts[9]
+        return repo_owner, repo_name, run_id, job_id
+    except Exception as e:
+        print(f"Error: Unable to fetch logs from {url}: {e}")
+        return None, None, None, None
 
 
-def cleanup_logs(logs):
+def cleanup_logs(logs, logs_url):
     # split by newline
     logs = logs.split("\n")
     # find the index of all lines containing ##[endgroup]
@@ -37,7 +43,8 @@ def cleanup_logs(logs):
     # find the index of the line containing ##[error]
     error_index = [i for i, line in enumerate(logs) if "##[error]" in line]
     if len(error_index) == 0:
-        return "No error found in logs"
+        print(f"No error found in logs for: {logs_url}")
+        return False
     # get all logs between the last ##[endgroup] and the first ##[error] including the line with ##[error]
     cleaned_logs = logs[endgroup_indices[-1] : error_index[0] + 1]
     return "\n".join(cleaned_logs)
@@ -45,10 +52,14 @@ def cleanup_logs(logs):
 
 def analyze_logs(logs_url):
     repo_owner, repo_name, run_id, job_id = extract_info_from_url(logs_url)
+    if None in [repo_owner, repo_name, run_id, job_id]:
+        return False
     logs = fetch_logs(repo_owner, repo_name, run_id, job_id)
     if not logs:
         return False
-    logs = cleanup_logs(logs)
+    logs = cleanup_logs(logs, logs_url)
+    if not logs:
+        return False
     prompt = "Analyze the following logs, determine the cause of failure and make a recommendation for a fix"
     messages = [
         {
