@@ -12,8 +12,7 @@ GitFailGuard is an AI-powered tool that automatically reviews failed GitHub Acti
 
 ### Prerequisites
 
-- Docker
-- Docker Compose
+- Docker and Docker Compose
 - GitHub token with appropriate permissions
 - OpenAI API key
 
