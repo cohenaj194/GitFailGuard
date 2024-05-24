@@ -28,27 +28,27 @@ jobs:
           push: true
           tags: cohenaj194/gitfailguard:latest
 
-  # rollout-restart-staging:
-  #   needs: docker  # Makes sure this job runs after the "docker" job completes
-  #   runs-on: ubuntu-latest # Specifies the runner environment
+  rollout-restart-staging:
+    needs: docker  # Makes sure this job runs after the "docker" job completes
+    runs-on: ubuntu-latest # Specifies the runner environment
 
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v2 # Checks out your repository under $GITHUB_WORKSPACE
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2 # Checks out your repository under $GITHUB_WORKSPACE
 
-  #   - name: Set up Kubectl
-  #     uses: azure/setup-kubectl@v1 # Sets up kubectl CLI
-  #     with:
-  #       version: 'v1.20.0' # Specify the version of kubectl you want to use
+    - name: Set up Kubectl
+      uses: azure/setup-kubectl@v1 # Sets up kubectl CLI
+      with:
+        version: 'v1.20.0' # Specify the version of kubectl you want to use
 
-  #   - name: Configure Kubeconfig
-  #     env:
-  #       KUBECONFIG_STAGING: ${{ secrets.KUBECONFIG_STAGING }} # Uses the secret encoded in base64
-  #     run: |
-  #       echo "$KUBECONFIG_STAGING" | base64 -d > kubeconfig
-  #       export KUBECONFIG=$(pwd)/kubeconfig
+    - name: Configure Kubeconfig
+      env:
+        KUBECONFIG_STAGING: ${{ secrets.KUBECONFIG_STAGING }} # Uses the secret encoded in base64
+      run: |
+        echo "$KUBECONFIG_STAGING" | base64 -d > kubeconfig
+        export KUBECONFIG=$(pwd)/kubeconfig
 
-  #   - name: Rollout Restart Deployment
-  #     run: |
-  #       kubectl apply -f kube-manifest.yml --kubeconfig kubeconfig
-  #       kubectl rollout restart deployment gitfailguard-deployment --kubeconfig kubeconfig
+    - name: Rollout Restart Deployment
+      run: |
+        kubectl apply -f kube-manifest.yml --kubeconfig kubeconfig
+        kubectl rollout restart deployment gitfailguard-deployment --kubeconfig kubeconfig
