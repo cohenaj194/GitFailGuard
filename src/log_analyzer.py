@@ -9,11 +9,8 @@ def fetch_logs(repo_owner, repo_name, run_id, job_id):
         "Authorization": f"token {github_token}",
         "Accept": "application/vnd.github.v3+json",
     }
-
     url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/actions/jobs/{job_id}/logs"
-
     response = requests.get(url, headers=headers)
-
     if response.status_code == 200:
         return response.text
     else:
@@ -24,13 +21,11 @@ def fetch_logs(repo_owner, repo_name, run_id, job_id):
 def extract_info_from_url(url):
     # Split the URL by '/'
     parts = url.split("/")
-
     # Extract repository owner, repository name, run ID, and job ID from the URL
     repo_owner = parts[3]
     repo_name = parts[4]
     run_id = parts[7]
     job_id = parts[9]
-
     return repo_owner, repo_name, run_id, job_id
 
 
@@ -41,11 +36,9 @@ def cleanup_logs(logs):
     endgroup_indices = [i for i, line in enumerate(logs) if "##[endgroup]" in line]
     # find the index of the line containing ##[error]
     error_index = [i for i, line in enumerate(logs) if "##[error]" in line]
-
     if len(error_index) == 0:
         return "No error found in logs"
-
-    # get all logs between the last ##[endgroup] and the first ##[error] including he line with ##[error]
+    # get all logs between the last ##[endgroup] and the first ##[error] including the line with ##[error]
     cleaned_logs = logs[endgroup_indices[-1] : error_index[0] + 1]
     return "\n".join(cleaned_logs)
 
