@@ -7,8 +7,7 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     install_requires=["Flask", "requests", "openai"],
-    entry_points={
-        "console_scripts": ["gitfailguard=main:app.run"],
+    entry_points={"console_scripts": ["gitfailguard=main:app.run"],
     },
     classifiers=[
         "Programming Language :: Python :: 3.8",

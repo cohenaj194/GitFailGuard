@@ -3,7 +3,7 @@ name: Linters
 
 on:
   workflow_dispatch:
-  # push:
+  push:
   pull_request:
 
 jobs:
