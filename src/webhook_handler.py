@@ -28,4 +28,9 @@ def webhook():
                 200,
             )
     else:
-        return jsonify({"status": "no error or not completed", "data": data, "issue_url": None}), 200
+        return (
+            jsonify(
+                {"status": "no error or not completed", "data": data, "issue_url": None}
+            ),
+            200,
+        )
