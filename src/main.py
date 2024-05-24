@@ -3,6 +3,13 @@ from webhook_handler import webhook
 
 app = Flask(__name__)
 
+UP = {"status": "up"}
+
+
+@app.route("/")
+def index():
+    return UP, 200
+
 
 @app.route("/webhook", methods=["POST"])
 def handle_webhook():
