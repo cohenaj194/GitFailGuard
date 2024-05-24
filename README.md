@@ -67,13 +67,15 @@ curl -X POST -H "Content-Type: application/json" -d '{
   "workflow_run": {
     "conclusion": "failure",
     "name": "Test Workflow",
-    "logs_url": "https://github.com/ff14-advanced-market-search/mysql-population/actions/runs/9199994409"
+    "logs_url": "https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/actions/runs/9182309032/job/25250914650"
   },
   "repository": {
-    "full_name": "ff14-advanced-market-search/mysql-population"
+    "full_name": "ff14-advanced-market-search/saddlebag-with-pockets"
   }
-}' http://localhost:5000/webhook
+}' http://127.0.0.1:5000/webhook
 ```
+
+Example: https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431
 
 ### Running Tests
 
