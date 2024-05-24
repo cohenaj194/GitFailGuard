@@ -1,0 +1,51 @@
+---
+name: Linters
+
+on:
+  workflow_dispatch:
+  # push:
+  pull_request:
+
+jobs:
+  # TODO: Fix Bandit Vulns
+  "Bandit":
+    runs-on: ubuntu-latest
+    container: python:3.10
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Bandit check
+        uses: jpetrucciani/bandit-check@master
+        with:
+          path: "src/ tests/ setup.py"
+          bandit_flags: "-lll"
+
+  # "FastAPIBandit":
+  #   runs-on: ubuntu-latest
+  #   container: python:3.10
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install bandit
+
+  #     - name: Bandit check
+  #       run: |
+  #         bandit -lll src/ tests/ setup.py
+
+  "Black":
+    runs-on: ubuntu-latest
+    container: python:3.10
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: pip install black
+
+      - name: Run black check
+        run: black --check .

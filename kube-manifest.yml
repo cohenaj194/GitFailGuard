@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitfailguard-deployment
+  labels:
+    app: gitfailguard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitfailguard
+  template:
+    metadata:
+      labels:
+        app: gitfailguard
+    spec:
+      containers:
+      - name: gitfailguard
+        image: cohenaj194/gitfailguard:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: gitfailguard-secrets
+              key: github_token
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: gitfailguard-secrets
+              key: openai_api_key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitfailguard-service
+spec:
+  selector:
+    app: gitfailguard
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitfailguard-secrets
+type: Opaque
+data:
+  github_token: <base64_encoded_github_token>
+  openai_api_key: <base64_encoded_openai_api_key>
