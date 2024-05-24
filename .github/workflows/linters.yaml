@@ -2,7 +2,8 @@
 name: Linters
 
 on:
-  commit:
+  workflow_dispatch:
+  push:
 
 jobs:
   # TODO: Fix Bandit Vulns
