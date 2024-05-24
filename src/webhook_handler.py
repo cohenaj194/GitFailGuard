@@ -7,7 +7,7 @@ from github_issue_creator import create_github_issue
 
 def webhook():
     data = request.json
-    print(data)
+    print(jsonify(data))
     if (
         data["action"] == "completed"
         and data["workflow_run"]["conclusion"] == "failure"
@@ -27,4 +27,4 @@ def webhook():
                 200,
             )
     else:
-        return jsonify({"status": "error", "data": data, "issue_url": None}), 400
+        return jsonify({"status": "no error or not completed", "data": data, "issue_url": None}), 200
