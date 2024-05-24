@@ -11,11 +11,11 @@ def webhook():
     print(json.dumps(data))
     if (
         data["action"] == "completed"
-        and data["workflow_run"]["conclusion"] == "failure"
+        and data["workflow_job"]["conclusion"] == "failure"
     ):
         repo_name = data["repository"]["full_name"]
-        workflow_name = data["workflow_run"]["name"]
-        logs_url = data["workflow_run"]["logs_url"]
+        workflow_name = data["workflow_job"]["name"]
+        logs_url = data["workflow_job"]["html_url"]
         analysis = analyze_logs(logs_url)
         if not analysis:
             return jsonify({"status": "error", "data": data, "issue_url": None}), 500

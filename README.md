@@ -14,6 +14,10 @@ GitFailGuard is an AI-powered tool that automatically reviews failed GitHub Acti
 - AI-powered log analysis to identify potential causes of failure.
 - Automatic creation of GitHub Issues with detailed failure information.
 
+### Example
+
+https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431
+
 ## Setup
 
 ### Prerequisites
@@ -69,7 +73,7 @@ You can test the webhook endpoint using `curl`:
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{
   "action": "completed",
-  "workflow_run": {
+  "workflow_job": {
     "conclusion": "failure",
     "name": "Test Workflow",
     "logs_url": "https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/actions/runs/9182309032/job/25250914650"
@@ -79,8 +83,6 @@ curl -X POST -H "Content-Type: application/json" -d '{
   }
 }' http://127.0.0.1:5000/webhook
 ```
-
-Example: https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431
 
 ### Running Tests
 
@@ -116,9 +118,13 @@ GitFailGuard/
 └── docker-compose.yml
 ```
 
-### Deployment
+## Production Deployment
 
-This application can be deployed using any platform that supports Docker containers, such as AWS, Azure, or Google Cloud. Ensure you set the environment variables in the deployment environment as described in the setup section.
+You can deploy a production app using [the kubeconfig.](https://github.com/cohenaj194/GitFailGuard/blob/main/kube-manifest.yml)
+
+Then follow our guide on [Connecting your github repos to GitFailGuard.](https://github.com/cohenaj194/GitFailGuard/wiki/Setting-Up-a-GitHub-Webhook-for-GitFailGuard)
+
+This application can be deployed using any platform that supports Docker containers, such as Digital Ocean, AWS, Azure, or Google Cloud. Ensure you set the environment variables in the deployment environment as described in the setup section.
 
 ### Contributing
 
