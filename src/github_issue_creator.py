@@ -1,6 +1,7 @@
 import os
 import requests
 
+
 def create_github_issue(repo_name, workflow_name, logs_url, analysis):
     issue_title = f"Failed GitHub Action: {workflow_name}"
     issue_body = (
@@ -11,7 +12,7 @@ def create_github_issue(repo_name, workflow_name, logs_url, analysis):
     github_api_url = f"https://api.github.com/repos/{repo_name}/issues"
     headers = {
         "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
-        "Accept": "application/vnd.github.v3+json"
+        "Accept": "application/vnd.github.v3+json",
     }
     data = {"title": issue_title, "body": issue_body}
     response = requests.post(github_api_url, headers=headers, json=data)
