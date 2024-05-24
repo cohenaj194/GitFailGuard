@@ -56,10 +56,11 @@ def analyze_logs(logs_url):
     if not logs:
         return False
     logs = cleanup_logs(logs)
+    prompt = "Analyze the following logs, determine the cause of failure and make a recommendation for a fix"
     messages = [
         {
             "role": "user",
-            "content": f"Analyze the following logs and determine the cause of failure:\n\n{logs}",
+            "content": f"{prompt}:\n\n{logs}",
         }
     ]
     openai.api_key = os.getenv("CHATGPT_API_KEY")
