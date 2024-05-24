@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 from flask import request, jsonify
 from log_analyzer import analyze_logs
 from github_issue_creator import create_github_issue
@@ -7,7 +8,7 @@ from github_issue_creator import create_github_issue
 
 def webhook():
     data = request.json
-    print(jsonify(data))
+    print(json.dumps(data))
     if (
         data["action"] == "completed"
         and data["workflow_run"]["conclusion"] == "failure"
