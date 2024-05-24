@@ -50,5 +50,4 @@ jobs:
 
     - name: Rollout Restart Deployment
       run: |
-        kubectl apply -f kube-manifest.yml --kubeconfig kubeconfig
         kubectl rollout restart deployment gitfailguard-deployment --kubeconfig kubeconfig
