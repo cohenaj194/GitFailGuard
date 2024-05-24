@@ -67,7 +67,7 @@ def analyze_logs(logs_url):
             "content": f"{prompt}:\n\n{logs}",
         }
     ]
-    openai.api_key = os.getenv("CHATGPT_API_KEY")
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages,

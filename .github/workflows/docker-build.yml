@@ -1,0 +1,53 @@
+name: docker-build
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: cohenaj194/gitfailguard:latest
+
+  # rollout-restart-staging:
+  #   needs: docker  # Makes sure this job runs after the "docker" job completes
+  #   runs-on: ubuntu-latest # Specifies the runner environment
+
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2 # Checks out your repository under $GITHUB_WORKSPACE
+
+  #   - name: Set up Kubectl
+  #     uses: azure/setup-kubectl@v1 # Sets up kubectl CLI
+  #     with:
+  #       version: 'v1.20.0' # Specify the version of kubectl you want to use
+
+  #   - name: Configure Kubeconfig
+  #     env:
+  #       KUBECONFIG_STAGING: ${{ secrets.KUBECONFIG_STAGING }} # Uses the secret encoded in base64
+  #     run: |
+  #       echo "$KUBECONFIG_STAGING" | base64 -d > kubeconfig
+  #       export KUBECONFIG=$(pwd)/kubeconfig
+
+  #   - name: Rollout Restart Deployment
+  #     run: |
+  #       kubectl apply -f kube-manifest.yml --kubeconfig kubeconfig
+  #       kubectl rollout restart deployment gitfailguard-deployment --kubeconfig kubeconfig

@@ -9,5 +9,5 @@ services:
       - "5000:5000"
     environment:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
-      CHATGPT_API_KEY: ${CHATGPT_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     container_name: gitfailguard
