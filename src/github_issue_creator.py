@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+import openai
 
 
 def create_github_issue(repo_name, workflow_name, logs_url, analysis):
@@ -23,3 +24,18 @@ def create_github_issue(repo_name, workflow_name, logs_url, analysis):
         return issue_url
     else:
         print(f"Failed to create issue: {response.content}")
+
+
+def respond_to_issue_comment(comment_body):
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "user",
+                "content": f"Answer the following question: {comment_body}",
+            }
+        ],
+        temperature=0,
+    )
+    return response.choices[0].message["content"]

@@ -68,7 +68,7 @@ export OPENAI_API_KEY=your_openai_api_key_here
 
 ### Testing the Webhook
 
-You can test the webhook endpoint using `curl`:
+You can test the action response webhook endpoint using `curl`:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{
@@ -82,6 +82,27 @@ curl -X POST -H "Content-Type: application/json" -d '{
     "full_name": "ff14-advanced-market-search/saddlebag-with-pockets"
   }
 }' http://127.0.0.1:5000/webhook
+```
+
+You can test the issue comment response webhook endpoint using `curl`:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "action": "created",
+  "issue": {
+    "number": 92
+  },
+  "comment": {
+    "body": "Cause of Failure: The error occurred because the required version of pyqt5-qt5 (5.15.11) could not be found, and the versions available require a different Python version."
+  },
+  "repository": {
+    "name": "AzerothAuctionAssassin",
+    "owner": {
+      "login": "ff14-advanced-market-search"
+    }
+  }
+}
+' http://127.0.0.1:5000/webhook
 ```
 
 ### Running Tests
