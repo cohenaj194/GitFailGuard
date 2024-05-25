@@ -68,6 +68,8 @@ export OPENAI_API_KEY=your_openai_api_key_here
 
 ### Testing the Webhook
 
+#### Action Test
+
 You can test the action response webhook endpoint using `curl`:
 
 ```bash
@@ -83,6 +85,24 @@ curl -X POST -H "Content-Type: application/json" -d '{
   }
 }' http://127.0.0.1:5000/webhook
 ```
+
+Note that it will not make issues for actions that succeed
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "action": "completed",
+  "workflow_job": {
+    "conclusion": "success"
+    "name": "Test Workflow",
+    "logs_url": "https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/actions/runs/9216088185/job/25355685765"
+  },
+  "repository": {
+    "full_name": "ff14-advanced-market-search/saddlebag-with-pockets"
+  }
+}' http://127.0.0.1:5000/webhook
+```
+
+#### Issue Comment Test
 
 You can test the issue comment response webhook endpoint using `curl`:
 
@@ -108,6 +128,9 @@ curl -X POST -H "Content-Type: application/json" -d '{
 ' http://127.0.0.1:5000/webhook
 ```
 
+Example: https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/issues/92#issuecomment-2131317762
+
+Note it will not respond if you do not mention the bot with `@GitFailGuard`
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{
