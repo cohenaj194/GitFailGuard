@@ -28,6 +28,17 @@ def webhook():
                 200,
             )
     elif data.get("action") == "created" and "comment" in data:
+        if "@GitFailGuard" not in data["comment"]["body"]:
+            return (
+                jsonify(
+                    {
+                        "status": "GitFailGuard not mentioned in comment",
+                        "data": data,
+                        "comment_url": None,
+                    }
+                ),
+                200,
+            )
         comment_url = handle_issue_comment(data)
         if not comment_url:
             return (

@@ -90,10 +90,12 @@ You can test the issue comment response webhook endpoint using `curl`:
 curl -X POST -H "Content-Type: application/json" -d '{
   "action": "created",
   "issue": {
-    "number": 92
+    "number": 92,
+    "body": "The GitHub Action `build-windows` failed.\n\nLogs: [View Logs](https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/actions/runs/9236320913/job/25412042241)\n\nAnalysis:\nCause of Failure: The error occurred because the required version of pyqt5-qt5 (5.15.11) could not be found, and the versions available require a different Python version.\n\nRecommendation for Fix: Update the requirements.txt file to specify a compatible version of pyqt5-qt5 that is available for the Python version being used. Alternatively, consider updating the Python version to meet the requirements of the available pyqt5-qt5 versions. This will ensure that the required package can be found and the process can be completed successfully.",
+
   },
   "comment": {
-    "body": "Cause of Failure: The error occurred because the required version of pyqt5-qt5 (5.15.11) could not be found, and the versions available require a different Python version."
+    "body": "@GitFailGuard can you make a new requirements.txt that will fix this"
   },
   "repository": {
     "name": "AzerothAuctionAssassin",
