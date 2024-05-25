@@ -66,8 +66,10 @@ def handle_issue_comment(data):
     repo_name = data["repository"]["name"]
     issue_number = data["issue"]["number"]
     comment_body = data["comment"]["body"]
+    issue_body = data["issue"]["body"]
+    issue_title = data["issue"]["title"]
 
-    response = respond_to_issue_comment(comment_body)
+    response = respond_to_issue_comment(comment_body, issue_body, issue_title)
     return post_comment_to_github(repo_owner, repo_name, issue_number, response)
 
 

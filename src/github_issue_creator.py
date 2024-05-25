@@ -26,14 +26,19 @@ def create_github_issue(repo_name, workflow_name, logs_url, analysis):
         print(f"Failed to create issue: {response.content}")
 
 
-def respond_to_issue_comment(comment_body):
+def respond_to_issue_comment(comment_body, issue_body, issue_title):
     openai.api_key = os.getenv("OPENAI_API_KEY")
+    prompt = (
+        f"For this issue {issue_title} "
+        + f"with description {issue_body}, "
+        + f"answer the following question: {comment_body}"
+    )
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {
                 "role": "user",
-                "content": f"Answer the following question: {comment_body}",
+                "content": prompt,
             }
         ],
         temperature=0,
