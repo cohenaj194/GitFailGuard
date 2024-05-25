@@ -60,7 +60,10 @@ def analyze_logs(logs_url):
     logs = cleanup_logs(logs, logs_url)
     if not logs:
         return False
-    prompt = "Analyze the following logs, determine the cause of failure and make a recommendation for a fix"
+    prompt = (
+        "You are a helpful AI assistant named GitFailGuard."
+        + " Analyze the following logs, determine the cause of failure and make a recommendation for a fix"
+    )
     messages = [
         {
             "role": "user",

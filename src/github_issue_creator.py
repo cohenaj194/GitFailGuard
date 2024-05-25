@@ -29,9 +29,10 @@ def create_github_issue(repo_name, workflow_name, logs_url, analysis):
 def respond_to_issue_comment(comment_body, issue_body, issue_title):
     openai.api_key = os.getenv("OPENAI_API_KEY")
     prompt = (
-        f"For this issue {issue_title} "
-        + f"with description {issue_body}, "
-        + f"answer the following question: {comment_body}"
+        f"You are a helpful AI assistant named GitFailGuard. A user has commented on the issue titled '{issue_title}' "
+        f"with the following description:\n\n{issue_body}\n\n"
+        f"The user asked the following question:\n\n'{comment_body}'\n\n"
+        "Please provide a helpful and detailed response to their question."
     )
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
