@@ -8,15 +8,19 @@
 
 GitFailGuard is an AI-powered tool that automatically reviews failed GitHub Actions and creates detailed GitHub Issues to help you quickly address problems.
 
+GitFailGuard also acts as an assistant, responding to questions asked inside any GitHub issues when the bot is mentioned with @GitFailGuard.
+
 ## Features
 
 - Automated detection of failed GitHub Actions.
 - AI-powered log analysis to identify potential causes of failure.
 - Automatic creation of GitHub Issues with detailed failure information.
+- AI-powered responses to questions in GitHub Issues when using `@GitFailGuard`
 
 ### Example
 
-https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431
+- https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431
+- https://github.com/cohenaj194/GitFailGuard/issues/6
 
 ## Setup
 
@@ -127,8 +131,6 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }
 ' http://127.0.0.1:5000/webhook
 ```
-
-Example: https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/issues/92#issuecomment-2131317762
 
 Note it will not respond if you do not mention the bot with `@GitFailGuard`
 
