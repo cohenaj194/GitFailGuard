@@ -40,33 +40,7 @@ export GITHUB_TOKEN=your_github_token_here
 export OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-### Running with Docker Compose
-
-1. Clone the repository:
-
-    ```bash
-    git clone https://github.com/yourusername/GitFailGuard.git
-    cd GitFailGuard
-    ```
-
-2. Create a `.env` file in the root directory and add your environment variables:
-
-    ```bash
-    GITHUB_TOKEN=your_github_token_here
-    OPENAI_API_KEY=your_openai_api_key_here
-    ```
-
-3. Build and run the application:
-
-    ```bash
-    docker-compose up --build
-    ```
-
-4. Verify the application is running:
-
-    Open a browser and navigate to `http://localhost:5000` to see if the application is up and running.
-
-### Local Testing
+## Local Testing
 
 [View our guide on how to test GitFailGuard locally for developers looking to contribute and fork this project.](https://github.com/cohenaj194/GitFailGuard/wiki/Local-Development-Testing-Guide)
 
@@ -77,6 +51,8 @@ You can deploy a production app using docker-compose or [kubernetes.](https://gi
 Then follow our guide on [Connecting your github repos to GitFailGuard.](https://github.com/cohenaj194/GitFailGuard/wiki/Setting-Up-a-GitHub-Webhook-for-GitFailGuard)
 
 This application can be deployed using any platform that supports Docker containers, such as Digital Ocean, AWS, Azure, or Google Cloud. Ensure you set the environment variables in the deployment environment as described in the setup section.
+
+## Other Notes
 
 ### Project Structure
 
@@ -110,7 +86,7 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ### License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the Apache License. See the [LICENSE](LICENSE) file for more details.
 
 ### Acknowledgments
 
