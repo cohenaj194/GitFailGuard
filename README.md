@@ -16,7 +16,8 @@ GitFailGuard is an AI-powered tool that automatically reviews failed GitHub Acti
 
 ### Example
 
-https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431
+- [Issue Example](https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431)
+- [Comment Example](https://github.com/cohenaj194/GitFailGuard/issues/6#issuecomment-2131357637)
 
 ## Setup
 
