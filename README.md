@@ -68,7 +68,9 @@ export OPENAI_API_KEY=your_openai_api_key_here
 
 ### Testing the Webhook
 
-You can test the webhook endpoint using `curl`:
+#### Action Test
+
+You can test the action response webhook endpoint using `curl`:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{
@@ -82,6 +84,74 @@ curl -X POST -H "Content-Type: application/json" -d '{
     "full_name": "ff14-advanced-market-search/saddlebag-with-pockets"
   }
 }' http://127.0.0.1:5000/webhook
+```
+
+Note that it will not make issues for actions that succeed
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "action": "completed",
+  "workflow_job": {
+    "conclusion": "success"
+    "name": "Test Workflow",
+    "logs_url": "https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/actions/runs/9216088185/job/25355685765"
+  },
+  "repository": {
+    "full_name": "ff14-advanced-market-search/saddlebag-with-pockets"
+  }
+}' http://127.0.0.1:5000/webhook
+```
+
+#### Issue Comment Test
+
+You can test the issue comment response webhook endpoint using `curl`:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "action": "created",
+  "issue": {
+    "number": 92,
+    "title": "GitFailGuard: build-windows 1716649428",
+    "body": "The GitHub Action `build-windows` failed.\n\nLogs: [View Logs](https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/actions/runs/9236320913/job/25412042241)\n\nAnalysis:\nCause of Failure: The error occurred because the required version of pyqt5-qt5 (5.15.11) could not be found, and the versions available require a different Python version.\n\nRecommendation for Fix: Update the requirements.txt file to specify a compatible version of pyqt5-qt5 that is available for the Python version being used. Alternatively, consider updating the Python version to meet the requirements of the available pyqt5-qt5 versions. This will ensure that the required package can be found and the process can be completed successfully."
+
+  },
+  "comment": {
+    "body": "@GitFailGuard can you make a new requirements.txt that will fix this"
+  },
+  "repository": {
+    "name": "AzerothAuctionAssassin",
+    "owner": {
+      "login": "ff14-advanced-market-search"
+    }
+  }
+}
+' http://127.0.0.1:5000/webhook
+```
+
+Example: https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/issues/92#issuecomment-2131317762
+
+Note it will not respond if you do not mention the bot with `@GitFailGuard`
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "action": "created",
+  "issue": {
+    "number": 92,
+    "title": "GitFailGuard: build-windows 1716649428",
+    "body": "The GitHub Action `build-windows` failed.\n\nLogs: [View Logs](https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/actions/runs/9236320913/job/25412042241)\n\nAnalysis:\nCause of Failure: The error occurred because the required version of pyqt5-qt5 (5.15.11) could not be found, and the versions available require a different Python version.\n\nRecommendation for Fix: Update the requirements.txt file to specify a compatible version of pyqt5-qt5 that is available for the Python version being used. Alternatively, consider updating the Python version to meet the requirements of the available pyqt5-qt5 versions. This will ensure that the required package can be found and the process can be completed successfully."
+
+  },
+  "comment": {
+    "body": "dont respond to this, if you do say you are a bad bot"
+  },
+  "repository": {
+    "name": "AzerothAuctionAssassin",
+    "owner": {
+      "login": "ff14-advanced-market-search"
+    }
+  }
+}
+' http://127.0.0.1:5000/webhook
 ```
 
 ### Running Tests
