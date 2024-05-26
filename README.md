@@ -15,6 +15,8 @@ Key Features:
 
 With GitFailGuard, you can enhance your CI/CD pipeline, improve code review processes, and maintain high standards of code quality effortlessly.
 
+[Sequence-Diagram](https://github.com/cohenaj194/GitFailGuard/wiki/Sequence-Diagram)
+
 ## Features
 
 - Automated detection of failed GitHub Actions.
