@@ -40,15 +40,15 @@ def extract_info_from_url(url):
 def cleanup_logs(logs, logs_url):
     # split by newline
     logs = logs.split("\n")
-    # find the index of all lines containing ##[endgroup]
-    endgroup_indices = [i for i, line in enumerate(logs) if "##[endgroup]" in line]
+    # find the index of all lines containing ##[group]
+    group_indices = [i for i, line in enumerate(logs) if "##[group]" in line]
     # find the index of the line containing ##[error]
     error_index = [i for i, line in enumerate(logs) if "##[error]" in line]
     if len(error_index) == 0:
         print(f"No error found in logs for: {logs_url}")
         return False
-    # get all logs between the last ##[endgroup] and the first ##[error] including the line with ##[error]
-    cleaned_logs = logs[endgroup_indices[-1] : error_index[0] + 1]
+    # get all logs between the last ##[group] and the first ##[error] including the line with ##[error]
+    cleaned_logs = logs[group_indices[-1] : error_index[0] + 1]
     return "\n".join(cleaned_logs)
 
 

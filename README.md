@@ -9,9 +9,9 @@
 **GitFailGuard** is an advanced AI-powered tool designed to streamline your development workflow by automatically reviewing failed GitHub Actions and generating detailed GitHub Issues. This enables you to quickly identify and address problems, ensuring a more efficient development process.
 
 Key Features:
-- **Automated Failure Analysis**: GitFailGuard reviews failed GitHub Actions and creates comprehensive GitHub Issues, providing clear insights and actionable steps to resolve issues.
-- **Seamless Integration with Pull Requests**: GitFailGuard can post logs from failed actions directly into your pull requests, facilitating thorough reviews from [CodeRabbit](https://coderabbit.ai/) and ensuring code quality.
-- **Interactive Assistant**: Mention `@GitFailGuard` in any GitHub issue comment, and GitFailGuard will respond to your questions, offering assistance and guidance directly within your repository.
+- **CI/CD Failure Analysis**: GitFailGuard reviews failed GitHub Actions and creates comprehensive GitHub Issues, providing clear insights and actionable steps to resolve issues.
+- **Github Issue Question Assistant**: Mention `@GitFailGuard` in any GitHub issue comment, and GitFailGuard will respond to your questions, offering assistance and guidance directly within your repository.
+- **CI/CD Log Analysis in Pull Requests**: GitFailGuard can post logs from failed actions directly into your pull requests, facilitating thorough reviews from [CodeRabbit](https://coderabbit.ai/) with `@coderabbitai` pings and ensuring code quality.
 
 With GitFailGuard, you can enhance your CI/CD pipeline, improve code review processes, and maintain high standards of code quality effortlessly.
 
@@ -23,7 +23,7 @@ With GitFailGuard, you can enhance your CI/CD pipeline, improve code review proc
 - AI-powered log analysis to identify potential causes of failure.
 - Automatic creation of GitHub Issues with detailed failure information.
 - Assistant feature to respond to questions in GitHub issue comments when mentioned with `@GitFailGuard`.
-- Interaction with [CodeRabbit](https://coderabbit.ai/) to enable log reviews inside of pull requests.
+- Interaction with [CodeRabbit](https://coderabbit.ai/) with `@coderabbitai` pings to enable log reviews inside of pull requests.
 
 ### Example
 
