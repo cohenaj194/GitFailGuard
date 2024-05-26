@@ -6,11 +6,14 @@
 
 <!-- ![GitFailGuard](https://github.com/cohenaj194/GitFailGuard/assets/17516896/ab1733a6-dff9-46aa-a909-2ac27f18ad0d) -->
 
-GitFailGuard is an AI-powered tool that automatically reviews failed GitHub Actions and creates detailed GitHub Issues to help you quickly address problems.
+**GitFailGuard** is an advanced AI-powered tool designed to streamline your development workflow by automatically reviewing failed GitHub Actions and generating detailed GitHub Issues. This enables you to quickly identify and address problems, ensuring a more efficient development process.
 
-GitFailGuard can then 
+Key Features:
+- **Automated Failure Analysis**: GitFailGuard reviews failed GitHub Actions and creates comprehensive GitHub Issues, providing clear insights and actionable steps to resolve issues.
+- **Seamless Integration with Pull Requests**: GitFailGuard can post logs from failed actions directly into your pull requests, facilitating thorough reviews from [CodeRabbit](https://coderabbit.ai/) and ensuring code quality.
+- **Interactive Assistant**: Mention `@GitFailGuard` in any GitHub issue comment, and GitFailGuard will respond to your questions, offering assistance and guidance directly within your repository.
 
-GitFailGuard also acts as an assistant, responding to questions asked inside any GitHub issue comment when the bot is mentioned with `@GitFailGuard`.
+With GitFailGuard, you can enhance your CI/CD pipeline, improve code review processes, and maintain high standards of code quality effortlessly.
 
 ## Features
 
