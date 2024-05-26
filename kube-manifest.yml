@@ -46,4 +46,4 @@ data:
   OPENAI_API_KEY: <base64_encoded_openai_api_key>
   # only set if you want to enable coderabit PR comments to failure logs
   # do not set env var if you do not have coderabit enabled
-  # ENABLE_CODERABBIT: "true"
+  # ENABLE_CODERABBIT: "dHJ1ZQ==" # i.e. "true"
