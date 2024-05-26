@@ -54,3 +54,4 @@ jobs:
     - name: Rollout Restart Deployment
       run: |
         kubectl rollout restart deployment gitfailguard-deployment --kubeconfig kubeconfig
+        kubectl rollout restart deployment gitfailguard-deployment --kubeconfig kubeconfig -n saddlebag
