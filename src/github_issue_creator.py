@@ -26,7 +26,7 @@ def create_github_issue(repo_name, workflow_name, logs_url, analysis):
         print(f"Failed to create issue: {response.content}")
 
 
-def respond_to_issue_comment(comment_body, issue_body, issue_title):
+def respond_to_issue_comment(issue_title, issue_body, comment_body):
     openai.api_key = os.getenv("OPENAI_API_KEY")
     prompt = (
         f"You are a helpful AI assistant named GitFailGuard. A user has commented on the issue titled '{issue_title}' "
