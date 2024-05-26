@@ -3,12 +3,12 @@ name: Linters
 
 on:
   workflow_dispatch:
-  # push:
+  push:
   #   paths:
   #     - '!README.md'
   pull_request:
-    paths:
-      - '!README.md'
+  #   paths:
+  #     - '!README.md'
 
 jobs:
   # TODO: Fix Bandit Vulns
