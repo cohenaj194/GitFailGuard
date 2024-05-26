@@ -6,9 +6,16 @@
 
 <!-- ![GitFailGuard](https://github.com/cohenaj194/GitFailGuard/assets/17516896/ab1733a6-dff9-46aa-a909-2ac27f18ad0d) -->
 
-GitFailGuard is an AI-powered tool that automatically reviews failed GitHub Actions and creates detailed GitHub Issues to help you quickly address problems.
+**GitFailGuard** is an advanced AI-powered tool designed to streamline your development workflow by automatically reviewing failed GitHub Actions and generating detailed GitHub Issues. This enables you to quickly identify and address problems, ensuring a more efficient development process.
 
-GitFailGuard also acts as an assistant, responding to questions asked inside any GitHub issue comment when the bot is mentioned with `@GitFailGuard`.
+Key Features:
+- **Automated Failure Analysis**: GitFailGuard reviews failed GitHub Actions and creates comprehensive GitHub Issues, providing clear insights and actionable steps to resolve issues.
+- **Seamless Integration with Pull Requests**: GitFailGuard can post logs from failed actions directly into your pull requests, facilitating thorough reviews from [CodeRabbit](https://coderabbit.ai/) and ensuring code quality.
+- **Interactive Assistant**: Mention `@GitFailGuard` in any GitHub issue comment, and GitFailGuard will respond to your questions, offering assistance and guidance directly within your repository.
+
+With GitFailGuard, you can enhance your CI/CD pipeline, improve code review processes, and maintain high standards of code quality effortlessly.
+
+[Sequence-Diagram](https://github.com/cohenaj194/GitFailGuard/wiki/Sequence-Diagram)
 
 ## Features
 
@@ -16,11 +23,13 @@ GitFailGuard also acts as an assistant, responding to questions asked inside any
 - AI-powered log analysis to identify potential causes of failure.
 - Automatic creation of GitHub Issues with detailed failure information.
 - Assistant feature to respond to questions in GitHub issue comments when mentioned with `@GitFailGuard`.
+- Interaction with [CodeRabbit](https://coderabbit.ai/) to enable log reviews inside of pull requests.
 
 ### Example
 
 - [Issue Example](https://github.com/ff14-advanced-market-search/saddlebag-with-pockets/issues/431)
 - [Comment Example](https://github.com/cohenaj194/GitFailGuard/issues/6#issuecomment-2131357637)
+- [CodeRabbit Review Ping](https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/issues/97) and [resulting comment](https://github.com/ff14-advanced-market-search/AzerothAuctionAssassin/pull/94#issuecomment-2132261750)
 
 ## Setup
 
@@ -36,12 +45,17 @@ Ensure you have the following environment variables set:
 
 - `GITHUB_TOKEN`: Your GitHub token.
 - `OPENAI_API_KEY`: Your OpenAI API key.
+- `ENABLE_CODERABBIT`: (Optional) Enables CodeRabbit reviews in pull requests.
 
 You can set these variables in your shell:
 
 ```bash
 export GITHUB_TOKEN=your_github_token_here
 export OPENAI_API_KEY=your_openai_api_key_here
+
+# # only set if you want to enable coderabit PR comments to failure logs
+# # do not set env var if you do not have coderabit enabled
+# export ENABLE_CODERABBIT="true"
 ```
 
 ## Local Testing

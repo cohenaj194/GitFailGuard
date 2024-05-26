@@ -19,17 +19,9 @@ spec:
         image: cohenaj194/gitfailguard:latest
         ports:
         - containerPort: 5000
-        env:
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: gitfailguard-secrets
-              key: github_token
-        - name: OPENAI_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: gitfailguard-secrets
-              key: openai_api_key
+        envFrom:
+        - secretRef:
+            name: gitfailguard-secrets
 ---
 apiVersion: v1
 kind: Service
@@ -50,5 +42,8 @@ metadata:
   name: gitfailguard-secrets
 type: Opaque
 data:
-  github_token: <base64_encoded_github_token>
-  openai_api_key: <base64_encoded_openai_api_key>
+  GITHUB_TOKEN: <base64_encoded_github_token>
+  OPENAI_API_KEY: <base64_encoded_openai_api_key>
+  # only set if you want to enable coderabit PR comments to failure logs
+  # do not set env var if you do not have coderabit enabled
+  # ENABLE_CODERABBIT: "dHJ1ZQ==" # i.e. "true"
