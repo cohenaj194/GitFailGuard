@@ -45,3 +45,20 @@ def respond_to_issue_comment(comment_body, issue_body, issue_title):
         temperature=0,
     )
     return response.choices[0].message["content"]
+
+
+def post_comment_to_pull_request(repo_owner, repo_name, pr_number, comment):
+    github_token = os.getenv("GITHUB_TOKEN")
+    github_api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{pr_number}/comments"
+    headers = {
+        "Authorization": f"token {github_token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    data = {"body": comment}
+    response = requests.post(github_api_url, headers=headers, json=data)
+    if response.status_code == 201:
+        print("Comment posted successfully.")
+        return response.json().get("html_url")
+    else:
+        print(f"Failed to post comment: {response.content}")
+        return False

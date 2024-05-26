@@ -30,7 +30,11 @@ def handle_failed_workflow(data):
     workflow_name = data["workflow_job"]["name"]
     logs_url = data["workflow_job"]["html_url"]
 
-    analysis = analyze_logs(logs_url)
+    head_branch = None
+    if "head_branch" in data["workflow_job"]:
+        head_branch = data["workflow_job"]["head_branch"]
+
+    analysis = analyze_logs(logs_url, head_branch)
     if not analysis:
         return jsonify({"status": "error", "data": data, "issue_url": None}), 500
 
@@ -84,5 +88,5 @@ def post_comment_to_github(repo_owner, repo_name, issue_number, comment):
         print("Comment posted successfully.")
         return response.json().get("html_url")
     else:
-        print(f"Failed to post comment: {response.content}")
+        print(f"Failed to post comment on PR {github_api_url}: {response.content}")
         return False
