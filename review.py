@@ -2,35 +2,47 @@ import os
 import requests
 import sys
 from datetime import datetime, timedelta
+import openai  # Import OpenAI library
 
 # Replace 'owner' and 'repo' with your GitHub repository details
-OWNER = 'ff14-advanced-market-search'
-REPO = 'Aetheryte'
+OWNER = "ff14-advanced-market-search"
+REPO = "Aetheryte"
 
 # GitHub API endpoints
-BASE_URL = 'https://api.github.com'
-PULLS_URL = f'{BASE_URL}/repos/{OWNER}/{REPO}/pulls'
-ISSUE_COMMENTS_URL_TEMPLATE = f'{BASE_URL}/repos/{OWNER}/{REPO}/issues/{{}}/comments'
-REVIEW_COMMENTS_URL_TEMPLATE = f'{BASE_URL}/repos/{OWNER}/{REPO}/pulls/{{}}/comments'
+BASE_URL = "https://api.github.com"
+PULLS_URL = f"{BASE_URL}/repos/{OWNER}/{REPO}/pulls"
+ISSUE_COMMENTS_URL_TEMPLATE = f"{BASE_URL}/repos/{OWNER}/{REPO}/issues/{{}}/comments"
+REVIEW_COMMENTS_URL_TEMPLATE = f"{BASE_URL}/repos/{OWNER}/{REPO}/pulls/{{}}/comments"
 
 # Get GitHub token from environment variable
-GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 if not GITHUB_TOKEN:
     print("Error: GITHUB_TOKEN environment variable not set.")
     sys.exit(1)
 
+# Get OpenAI API key from environment variable
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    print("Error: OPENAI_API_KEY environment variable not set.")
+    sys.exit(1)
+
+# Set OpenAI API key
+openai.api_key = OPENAI_API_KEY
+
 # HTTP headers for authentication
 HEADERS = {
-    'Authorization': f'token {GITHUB_TOKEN}',
-    'Accept': 'application/vnd.github.v3+json'
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3+json",
 }
+
 
 def get_pull_requests():
     """Fetch all pull requests."""
-    params = {'state': 'all', 'per_page': 100}
+    params = {"state": "all", "per_page": 100}
     response = requests.get(PULLS_URL, headers=HEADERS, params=params)
     response.raise_for_status()
     return response.json()
+
 
 def get_issue_comments(pr_number):
     """Fetch issue comments for a pull request."""
@@ -39,6 +51,7 @@ def get_issue_comments(pr_number):
     response.raise_for_status()
     return response.json()
 
+
 def get_review_comments(pr_number):
     """Fetch review comments for a pull request."""
     comments_url = REVIEW_COMMENTS_URL_TEMPLATE.format(pr_number)
@@ -46,96 +59,154 @@ def get_review_comments(pr_number):
     response.raise_for_status()
     return response.json()
 
+
 def is_stale(pr):
     """Determine if a PR is stale (no activity for 30 days)."""
-    last_updated = datetime.strptime(pr['updated_at'], '%Y-%m-%dT%H:%M:%SZ')
-    return datetime.utcnow() - last_updated > timedelta(days=2)
+    last_updated = datetime.strptime(pr["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
+    return datetime.utcnow() - last_updated > timedelta(days=1)
+
+
+def summarize_text(text, max_tokens=150):
+    """Use OpenAI API to summarize text."""
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Summarize the following text in under 50 words.",
+                },
+                {"role": "user", "content": text},
+            ],
+            max_tokens=max_tokens,
+            temperature=0.5,
+        )
+        summary = response["choices"][0]["message"]["content"].strip()
+        return summary
+    except Exception as e:
+        print(f"Error summarizing text: {e}")
+        return "Summary not available."
+
 
 def summarize_conversations(comments):
     """Summarize conversations from comments."""
-    insights = []
+    # Filter out bot comments and comments without user interaction
+    user_comments = []
     for comment in comments:
-        commenter = comment['user']['login']
-        body = comment['body']
-        # Skip bot comments unless there's interaction
-        if commenter.lower() == 'coderabbitai' and not any(c['user']['login'] != 'coderabbitai' for c in comments):
+        commenter = comment["user"]["login"]
+        if commenter.lower() in ["coderabbitai", "coderabbit"]:
             continue
-        # Ignore auto-generated comments by coderabbitai
-        if 'auto-generated comment' in body.lower():
-            continue
-        # Create insight summary
-        insight = f"Reviewer {commenter} says: {body[:100].replace('\n', ' ')}"
-        # Check if comment is addressed (only possible in review comments)
-        addressed = False
-        if 'in_reply_to_id' in comment:
-            # Only review comments have 'in_reply_to_id'
-            addressed = any(
-                c.get('id') == comment['in_reply_to_id']
-                for c in comments if c.get('id') and c.get('id') != comment.get('id')
-            )
-        if addressed:
-            insight += ' (Addressed)'
-        insights.append(insight)
-    if not insights:
-        return ['No conversation']
-    return insights[:4]  # Limit to 2 to 4 insights
+        user_comments.append(comment)
+
+    if not user_comments:
+        return None  # No conversations to summarize
+
+    # Prepare the conversation text
+    conversation_text = ""
+    for comment in user_comments:
+        commenter = comment["user"]["login"]
+        body = comment["body"]
+        conversation_text += f"{commenter}: {body}\n"
+
+    # Use OpenAI to summarize the conversations into bullet points
+    try:
+        prompt = (
+            "Summarize the following conversation into up to 4 bullet points, "
+            "highlighting requests, recommendations, suggestions, concerns, etc. "
+            "Include the names of the commenters.\n\n"
+            f"{conversation_text}"
+        )
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that summarizes conversations.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=300,
+            temperature=0.5,
+        )
+        summary = response["choices"][0]["message"]["content"].strip()
+        bullet_points = summary.split("\n")
+        # Clean up bullet points
+        insights = [bp.strip("- ").strip() for bp in bullet_points if bp.strip()]
+        return insights[:4]  # Limit to 4 insights
+    except Exception as e:
+        print(f"Error summarizing conversations: {e}")
+        return ["Conversations summary not available."]
+
 
 def generate_report():
     prs = get_pull_requests()
     for pr in prs:
-        pr_number = pr['number']
-        pr_title = pr['title']
-        pr_state = pr['state']
-        pr_draft = pr['draft']
-        pr_merged = pr.get('merged_at') is not None
-        pr_mergeable = pr.get('mergeable')
-        pr_user = pr['user']['login']
-        pr_html_url = pr['html_url']
+        pr_number = pr["number"]
+        pr_title = pr["title"]
+        pr_body = pr["body"] or "No description provided."
+        pr_state = pr["state"]
+        pr_draft = pr["draft"]
+        pr_merged = pr.get("merged_at") is not None
+        pr_mergeable = pr.get("mergeable")
+        pr_user = pr["user"]["login"]
+        pr_html_url = pr["html_url"]
         pr_is_stale = is_stale(pr)
 
         # Determine PR State
         if pr_merged:
-            state_icon = '🟣 Merged'
+            state_icon = "🟣 Merged"
         elif pr_draft:
-            state_icon = '🟡 Draft'
-        elif pr_state == 'open':
-            state_icon = '🟢 Open'
-        elif pr_state == 'closed' and not pr_merged:
-            state_icon = '🔴 Closed'
+            state_icon = "🟡 Draft"
+        elif pr_state == "open":
+            state_icon = "🟢 Open"
+        elif pr_state == "closed" and not pr_merged:
+            state_icon = "🔴 Closed"
         else:
-            state_icon = '⚫ Unknown'
+            state_icon = "⚫ Unknown"
 
         print(f"PR State: {state_icon}")
         print(f"* Title: **{pr_title}**, {pr_html_url}")
 
         # Blockers for open PRs
-        if state_icon == '🟢 Open':
+        if state_icon == "🟢 Open":
             print(f"* Blockers:")
             blockers = []
             if pr_mergeable is False:
-                blockers.append('Needs rebase')
-            if pr['requested_reviewers']:
-                reviewers = ', '.join([u['login'] for u in pr['requested_reviewers']])
-                blockers.append(f'Waiting for review from {reviewers}')
+                blockers.append("Needs rebase")
+            if pr["requested_reviewers"]:
+                reviewers = ", ".join([u["login"] for u in pr["requested_reviewers"]])
+                blockers.append(f"Waiting for review from {reviewers}")
             if not blockers:
-                blockers.append('Waiting for merge')
-            print('  ' + ', '.join(blockers))
+                blockers.append("Waiting for merge")
+            print("  " + ", ".join(blockers))
+
+        # Generate summary using OpenAI
+        pr_summary = summarize_text(pr_body)
 
         # Summary line
-        summary_status = 'Merged' if pr_merged else 'Mergeable' if pr_mergeable else 'Not Mergeable'
-        stale_text = ' (Stale)' if pr_is_stale and state_icon == '🟢 Open' else ''
-        print(f"* Summary: Short summary of the PR under 50 words, {summary_status}{stale_text}")
+        summary_status = (
+            "Merged" if pr_merged else "Mergeable" if pr_mergeable else "Not Mergeable"
+        )
+        stale_text = " (Stale)" if pr_is_stale and state_icon == "🟢 Open" else ""
+        print(f"* Summary: {pr_summary}, {summary_status}{stale_text}")
 
         # Conversations
         issue_comments = get_issue_comments(pr_number)
         review_comments = get_review_comments(pr_number)
         all_comments = issue_comments + review_comments
+
+        # Summarize conversations if there are user comments
         insights = summarize_conversations(all_comments)
-        print(f"* Conversations:")
-        for insight in insights:
-            print(f"  - {insight}")
+        if insights:
+            print(f"* Conversations:")
+            for insight in insights:
+                print(f"  - {insight}")
+        else:
+            # Do not add a Conversations section if only bot comments exist
+            pass
 
         print()  # Add space between PRs
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     generate_report()
