@@ -37,11 +37,39 @@ HEADERS = {
 
 
 def get_pull_requests():
-    """Fetch all pull requests."""
-    params = {"state": "all", "per_page": 100}
-    response = requests.get(PULLS_URL, headers=HEADERS, params=params)
-    response.raise_for_status()
-    return response.json()
+    """Fetch all pull requests that had activity in the past week."""
+    prs = []
+    page = 1
+    one_week_ago = datetime.utcnow() - timedelta(days=14)
+    while True:
+        params = {
+            "state": "all",
+            "per_page": 100,
+            "page": page,
+            "sort": "updated",
+            "direction": "desc",
+        }
+        response = requests.get(PULLS_URL, headers=HEADERS, params=params)
+        response.raise_for_status()
+        page_prs = response.json()
+        if not page_prs:
+            break
+
+        for pr in page_prs:
+            updated_at = datetime.strptime(pr["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
+            if updated_at >= one_week_ago:
+                prs.append(pr)
+            else:
+                # Since the PRs are sorted by updated_at descending, we can break early
+                break
+
+        # Check if we've reached PRs older than one week
+        if updated_at < one_week_ago:
+            break
+
+        page += 1
+
+    return prs
 
 
 def get_issue_comments(pr_number):
@@ -63,7 +91,7 @@ def get_review_comments(pr_number):
 def is_stale(pr):
     """Determine if a PR is stale (no activity for 30 days)."""
     last_updated = datetime.strptime(pr["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
-    return datetime.utcnow() - last_updated > timedelta(days=1)
+    return datetime.utcnow() - last_updated > timedelta(days=30)
 
 
 def summarize_text(text, max_tokens=150):
@@ -140,6 +168,10 @@ def summarize_conversations(comments):
 
 def generate_report():
     prs = get_pull_requests()
+    if not prs:
+        print("No pull requests with activity in the past week.")
+        return
+
     for pr in prs:
         pr_number = pr["number"]
         pr_title = pr["title"]
