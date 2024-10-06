@@ -25,8 +25,15 @@ if not OPENAI_API_KEY:
 
 # Get Discord webhook URL from environment variable
 MEGA_WEBHOOK_URL = os.environ.get("MEGA_WEBHOOK_URL")
-if not MEGA_WEBHOOK_URL:
-    print("Error: MEGA_WEBHOOK_URL environment variable not set.")
+
+# Get Slack webhook URL from environment variable
+SLACK_WEBHOOK = os.environ.get("SLACK_WEBHOOK")
+
+# Check if at least one webhook URL is set
+if not MEGA_WEBHOOK_URL and not SLACK_WEBHOOK:
+    print(
+        "Error: Neither MEGA_WEBHOOK_URL nor SLACK_WEBHOOK environment variables are set."
+    )
     sys.exit(1)
 
 # Set OpenAI API key
@@ -199,8 +206,76 @@ def summarize_conversations(comments):
         return ["Conversations summary not available."], participants
 
 
+def send_to_slack(repo_name, report_sections):
+    """Send the report to Slack via webhook."""
+    if not SLACK_WEBHOOK:
+        return  # Do nothing if Slack webhook is not set
+
+    blocks = []
+    for section in report_sections:
+        # Header block with PR title and state icon
+        blocks.append(
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*<{section.get('url')}|{section.get('title')}>*",
+                },
+            }
+        )
+        # Summary
+        for field in section.get("fields", []):
+            if field["name"] == "Summary":
+                blocks.append(
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"*Summary:*\n{field['value']}",
+                        },
+                    }
+                )
+        # Blockers
+        for field in section.get("fields", []):
+            if field["name"] == "Blockers":
+                blocks.append(
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"*Blockers:*\n{field['value']}",
+                        },
+                    }
+                )
+        # Conversations
+        for field in section.get("fields", []):
+            if field["name"].startswith("Conversations"):
+                blocks.append(
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"*{field['name']}:*\n{field['value']}",
+                        },
+                    }
+                )
+        # Divider
+        blocks.append({"type": "divider"})
+
+    data = {"username": "GitHub PR Reporter", "blocks": blocks}
+
+    response = requests.post(SLACK_WEBHOOK, json=data)
+    if response.status_code != 200:
+        print(
+            f"Failed to send message to Slack: {response.status_code}, {response.text}"
+        )
+
+
 def send_to_discord(repo_name, report_sections):
     """Send the report to Discord via webhook."""
+    if not MEGA_WEBHOOK_URL:
+        return  # Do nothing if Discord webhook is not set
+
     embeds = []
     for section in report_sections:
         embed = {
@@ -327,7 +402,7 @@ def generate_report():
                     }
                 )
 
-            # Prepare embed for this PR
+            # Prepare report section for this PR
             report_sections.append(
                 {
                     "title": f"{state_icon} {pr_title}",
@@ -339,8 +414,9 @@ def generate_report():
 
             print()  # Add space between PRs
 
-        # Send report to Discord for this repository
+        # Send report to Discord and/or Slack for this repository
         send_to_discord(repo_name, report_sections)
+        send_to_slack(repo_name, report_sections)
 
 
 if __name__ == "__main__":
