@@ -52,6 +52,13 @@ python analyze_screenshot.py path/to/your/screenshot.png "Your custom prompt her
 python analyze_screenshot.py screenshot.png "Summarize the key points from the following text and identify any action items."
 ```
 
+```bash
+$ python analyze_screenshot.py shakebeer.png "Summarize what this picture is"
+
+Analysis:
+The text describes contrasting times of wisdom and foolishness.
+```
+
 ### Explanation
 
 - **extract_text_from_image**: Opens the image file and uses `pytesseract` to perform OCR, extracting any text found in the image.

@@ -30,7 +30,7 @@ def analyze_text_with_llm(text, user_prompt):
     # Call the OpenAI ChatCompletion API
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Change to "gpt-4" if you have access
+            model="gpt-3.5-turbo",  # Change to "gpt-4.0-mini" for better results
             messages=[
                 {"role": "user", "content": full_prompt}
             ],
