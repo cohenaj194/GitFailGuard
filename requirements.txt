@@ -42,6 +42,14 @@ multidict==6.0.5
     #   yarl
 openai==0.28.0
     # via -r requirements.in
+packaging==24.1
+    # via pytesseract
+pillow==11.0.0
+    # via
+    #   -r requirements.in
+    #   pytesseract
+pytesseract==0.3.13
+    # via -r requirements.in
 requests==2.32.2
     # via
     #   -r requirements.in
