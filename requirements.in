@@ -11,3 +11,4 @@ openai==0.28
 pytesseract
 Pillow
 boto3
+azure-cognitiveservices-vision-computervision

@@ -1,6 +1,25 @@
 import boto3
 
+def check_aws_env_vars():
+    # List of required environment variables
+    required_env_vars = [
+        'AWS_ACCESS_KEY', 
+        'AWS_ACCOUNT_ID', 
+        'AWS_REGION', 
+        'AWS_SECRET_ACCESS_KEY'
+    ]
+
+    # Check if any required environment variable is missing
+    missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+
+    if missing_vars:
+        print(f"Error: Missing required environment variables: {', '.join(missing_vars)}")
+        sys.exit(1)
+
 def describe_image(image_path):
+    # make sure aws is setup
+    check_aws_env_vars()
+
     # Set up the AWS client
     client = boto3.client('rekognition')
 
@@ -63,4 +82,6 @@ def describe_image(image_path):
 
 # Call the function with your image file
 # describe_image('issue-pic.png')
+
+# other test
 describe_image('show-me.png')
