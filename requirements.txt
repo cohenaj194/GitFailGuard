@@ -12,6 +12,12 @@ attrs==23.2.0
     # via aiohttp
 blinker==1.8.2
     # via flask
+boto3==1.35.49
+    # via -r requirements.in
+botocore==1.35.49
+    # via
+    #   boto3
+    #   s3transfer
 certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
@@ -32,6 +38,10 @@ itsdangerous==2.2.0
     # via flask
 jinja2==3.1.4
     # via flask
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 markupsafe==2.1.5
     # via
     #   jinja2
@@ -50,14 +60,22 @@ pillow==11.0.0
     #   pytesseract
 pytesseract==0.3.13
     # via -r requirements.in
+python-dateutil==2.9.0.post0
+    # via botocore
 requests==2.32.2
     # via
     #   -r requirements.in
     #   openai
+s3transfer==0.10.3
+    # via boto3
+six==1.16.0
+    # via python-dateutil
 tqdm==4.66.4
     # via openai
 urllib3==2.2.1
-    # via requests
+    # via
+    #   botocore
+    #   requests
 werkzeug==3.0.3
     # via flask
 yarl==1.9.4

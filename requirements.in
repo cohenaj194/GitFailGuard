@@ -10,3 +10,4 @@ requests
 openai==0.28
 pytesseract
 Pillow
+boto3
