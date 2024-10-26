@@ -17,4 +17,7 @@ def describe_image(image_path):
         print(f'{label["Name"]} (Confidence: {label["Confidence"]:.2f}%)')
 
 # Call the function with your image file
-describe_image('issue-pic.png')
+# describe_image('issue-pic.png')
+
+# other test
+describe_image('show-me.png')
