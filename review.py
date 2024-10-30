@@ -24,17 +24,21 @@ if not OPENAI_API_KEY:
     sys.exit(1)
 
 # Get Discord webhook URL from environment variable
-MEGA_WEBHOOK_URL = os.environ.get("MEGA_WEBHOOK_URL")
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
 # Get Slack webhook URL from environment variable
 SLACK_WEBHOOK = os.environ.get("SLACK_WEBHOOK")
 
+# **Get MS Teams webhook URL from environment variable**
+MS_TEAMS_WEBHOOK = os.environ.get("MS_TEAMS_WEBHOOK")
+
 # Check if at least one webhook URL is set
-if not MEGA_WEBHOOK_URL and not SLACK_WEBHOOK:
+if not DISCORD_WEBHOOK_URL and not SLACK_WEBHOOK and not MS_TEAMS_WEBHOOK:
     print(
-        "Error: Neither MEGA_WEBHOOK_URL nor SLACK_WEBHOOK environment variables are set."
+        "Error: None of the DISCORD_WEBHOOK_URL, SLACK_WEBHOOK, or MS_TEAMS_WEBHOOK environment variables are set."
     )
     sys.exit(1)
+
 
 # Set OpenAI API key
 openai.api_key = OPENAI_API_KEY
@@ -59,6 +63,10 @@ def get_repositories():
             break
         repos.extend(page_repos)
         page += 1
+
+    # Remove the 'pr-reviewer_test' repository from the list
+    repos = [repo for repo in repos if repo["name"] != "pr-reviewer_test"]
+
     return repos
 
 
@@ -66,7 +74,7 @@ def get_pull_requests(owner, repo):
     """Fetch all pull requests for a repository that had activity in the past week."""
     prs = []
     page = 1
-    one_week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    one_week_ago = datetime.now(timezone.utc) - timedelta(days=1)
     pulls_url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
     while True:
         params = {
@@ -211,7 +219,9 @@ def send_to_slack(repo_name, report_sections):
     if not SLACK_WEBHOOK:
         return  # Do nothing if Slack webhook is not set
 
+    MAX_BLOCKS_PER_MESSAGE = 50
     blocks = []
+
     for section in report_sections:
         # Header block with PR title and state icon
         blocks.append(
@@ -262,38 +272,155 @@ def send_to_slack(repo_name, report_sections):
         # Divider
         blocks.append({"type": "divider"})
 
-    data = {"username": "GitHub PR Reporter", "blocks": blocks}
+        # If blocks reach the limit, send the message and reset the list
+        if len(blocks) >= MAX_BLOCKS_PER_MESSAGE:
+            data = {"username": "GitHub PR Reporter", "blocks": blocks}
+            try:
+                response = requests.post(SLACK_WEBHOOK, json=data)
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as http_err:
+                print(
+                    f"HTTP error occurred when sending to Slack: {http_err} - {response.text}"
+                )
+            except Exception as err:
+                print(f"An error occurred when sending to Slack: {err}")
+            else:
+                print("Successfully sent message to Slack")
+            blocks = []
 
-    response = requests.post(SLACK_WEBHOOK, json=data)
-    if response.status_code != 200:
-        print(
-            f"Failed to send message to Slack: {response.status_code}, {response.text}"
-        )
+    # Send any remaining blocks
+    if blocks:
+        data = {"username": "GitHub PR Reporter", "blocks": blocks}
+        try:
+            response = requests.post(SLACK_WEBHOOK, json=data)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as http_err:
+            print(
+                f"HTTP error occurred when sending to Slack: {http_err} - {response.text}"
+            )
+        except Exception as err:
+            print(f"An error occurred when sending to Slack: {err}")
+        else:
+            print("Successfully sent message to Slack")
 
 
 def send_to_discord(repo_name, report_sections):
     """Send the report to Discord via webhook."""
-    if not MEGA_WEBHOOK_URL:
+    if not DISCORD_WEBHOOK_URL:
         return  # Do nothing if Discord webhook is not set
 
-    embeds = []
+    MAX_EMBEDS_PER_MESSAGE = 10
+    embeds_list = [
+        report_sections[i : i + MAX_EMBEDS_PER_MESSAGE]
+        for i in range(0, len(report_sections), MAX_EMBEDS_PER_MESSAGE)
+    ]
+
+    for idx, embeds_chunk in enumerate(embeds_list):
+        embeds = []
+        for section in embeds_chunk:
+            embed = {
+                "title": section.get("title"),
+                "url": section.get("url"),
+                "color": section.get("color"),
+                "fields": section.get("fields"),
+                "footer": {"text": f"Repository: {repo_name}"},
+            }
+            embeds.append(embed)
+
+        data = {"username": "GitHub PR Reporter", "embeds": embeds}
+
+        try:
+            response = requests.post(DISCORD_WEBHOOK_URL, json=data)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as http_err:
+            print(
+                f"HTTP error occurred on message {idx+1}: {http_err} - {response.text}"
+            )
+        except Exception as err:
+            print(f"An error occurred on message {idx+1}: {err}")
+        else:
+            print(f"Successfully sent message {idx+1} to Discord")
+
+
+def send_to_teams(repo_name, report_sections):
+    """Send the report to Microsoft Teams via webhook."""
+    if not MS_TEAMS_WEBHOOK:
+        return  # Do nothing if Teams webhook is not set
+
+    MAX_MESSAGE_SIZE = 28000  # 28KB limit for Teams messages
+    sections = []
+    message_size = 0
+
     for section in report_sections:
-        embed = {
-            "title": section.get("title"),
-            "url": section.get("url"),
-            "color": section.get("color"),
-            "fields": section.get("fields"),
-            "footer": {"text": f"Repository: {repo_name}"},
+        # Create a section for the MessageCard
+        activityTitle = f"[{section.get('title')}]({section.get('url')})"
+        fields = section.get('fields', [])
+        facts = []
+        text = ""
+
+        for field in fields:
+            name = field.get('name')
+            value = field.get('value')
+            if name == 'Summary':
+                # Include summary in 'text' of the section
+                text = f"**Summary:** {value}"
+            elif name == 'Blockers':
+                facts.append({'name': 'Blockers', 'value': value})
+            elif name.startswith('Conversations'):
+                facts.append({'name': name, 'value': value})
+            else:
+                facts.append({'name': name, 'value': value})
+
+        section_dict = {
+            'activityTitle': activityTitle,
+            'facts': facts,
+            'text': text,
         }
-        embeds.append(embed)
 
-    data = {"username": "GitHub PR Reporter", "embeds": embeds}
+        # Estimate the size of the section
+        section_size = len(str(section_dict).encode('utf-8'))
+        message_size += section_size
 
-    response = requests.post(MEGA_WEBHOOK_URL, json=data)
-    if response.status_code != 204:
-        print(
-            f"Failed to send message to Discord: {response.status_code}, {response.text}"
-        )
+        if message_size >= MAX_MESSAGE_SIZE:
+            # Send the message with current sections
+            message = {
+                "@type": "MessageCard",
+                "@context": "http://schema.org/extensions",
+                "summary": f"GitHub PR Report for {repo_name}",
+                "sections": sections,
+            }
+            try:
+                response = requests.post(MS_TEAMS_WEBHOOK, json=message)
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as http_err:
+                print(f"HTTP error occurred when sending to Teams: {http_err} - {response.text}")
+            except Exception as err:
+                print(f"An error occurred when sending to Teams: {err}")
+            else:
+                print("Successfully sent message to Microsoft Teams")
+            # Reset sections and message_size
+            sections = [section_dict]
+            message_size = section_size
+        else:
+            sections.append(section_dict)
+
+    # Send any remaining sections
+    if sections:
+        message = {
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": f"GitHub PR Report for {repo_name}",
+            "sections": sections,
+        }
+        try:
+            response = requests.post(MS_TEAMS_WEBHOOK, json=message)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP error occurred when sending to Teams: {http_err} - {response.text}")
+        except Exception as err:
+            print(f"An error occurred when sending to Teams: {err}")
+        else:
+            print("Successfully sent message to Microsoft Teams")
 
 
 def generate_report():
@@ -414,9 +541,10 @@ def generate_report():
 
             print()  # Add space between PRs
 
-        # Send report to Discord and/or Slack for this repository
-        send_to_discord(repo_name, report_sections)
-        send_to_slack(repo_name, report_sections)
+            # Send report to Discord and/or Slack for this repository
+            send_to_discord(repo_name, report_sections)
+            send_to_slack(repo_name, report_sections)
+            send_to_teams(repo_name, report_sections)
 
 
 if __name__ == "__main__":
