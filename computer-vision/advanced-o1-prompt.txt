@@ -51,3 +51,4 @@ Describe the desired outcome.
 # Relevant code snippet
 def example_function():
     pass
+```
